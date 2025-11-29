@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SAHP Command Hub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --bg-soft: #111827;
+      --text: #e5e7eb;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.15);
+      --border: #1f2937;
+    }
+
+    body.light {
+      --bg: #f9fafb;
+      --bg-soft: #ffffff;
+      --text: #111827;
+      --accent: #2563eb;
+      --accent-soft: rgba(37, 99, 235, 0.1);
+      --border: #e5e7eb;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #1e293b 0, var(--bg) 45%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .shell {
+      max-width: 900px;
+      margin: 0 auto;
+      background: linear-gradient(135deg, var(--bg-soft), #020617);
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+      padding: 20px 22px 26px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .title-group h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .title-group p {
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+
+    .toggle-btn {
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-soft);
+      display: inline-flex;
+      align-items: center;
+      padding: 4px;
+      cursor: pointer;
+      gap: 4px;
+      font-size: 0.75rem;
+    }
+
+    .toggle-pill {
+      border-radius: 999px;
+      padding: 4px 10px;
+      min-width: 54px;
+      text-align: center;
+      transition: all 0.18s ease;
+    }
+
+    .toggle-pill.active {
+      background: var(--accent);
+      color: #020617;
+      font-weight: 600;
+    }
+
+    main {
+      display: grid;
+      gap: 14px;
+    }
+
+    .section {
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: radial-gradient(circle at top left, var(--accent-soft), transparent 60%);
+      padding: 14px 14px 10px;
+    }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 6px;
+    }
+
+    .section-title h2 {
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .section-title span {
+      font-size: 0.7rem;
+      opacity: 0.6;
+    }
+
+    .subheading {
+      font-size: 0.9rem;
+      margin-top: 8px;
+      margin-bottom: 4px;
+      font-weight: 600;
+      opacity: 0.9;
+    }
+
+    .command-row {
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+      margin-bottom: 6px;
+    }
+
+    .command-text {
+      flex: 1;
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo,
+        Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.78rem;
+      padding: 7px 9px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.9);
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    body.light .command-text {
+      background: #f3f4f6;
+    }
+
+    .copy-btn {
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-soft);
+      padding: 0 12px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      min-width: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      transition: background 0.15s ease, transform 0.08s ease;
+    }
+
+    .copy-btn:hover {
+      background: var(--accent-soft);
+    }
+
+    .copy-btn:active {
+      transform: scale(0.97);
+    }
+
+    .tip {
+      font-size: 0.72rem;
+      opacity: 0.75;
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    footer {
+      margin-top: 10px;
+      font-size: 0.7rem;
+      opacity: 0.6;
+      text-align: right;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 12px;
+      }
+      .shell {
+        padding: 16px 14px 18px;
+      }
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .command-row {
+        flex-direction: column;
+      }
+      .copy-btn {
+        align-self: flex-end;
+      }
+    }
+  </style>
+</head>
+<body class="dark">
+  <div class="shell">
+    <header>
+      <div class="title-group">
+        <h1>SAHP Command Hub</h1>
+        <p>Quick reference for in-city bodycam & RP commands</p>
+      </div>
+      <button class="toggle-btn" id="themeToggle" type="button">
+        <span class="toggle-pill active" data-mode="dark">Dark</span>
+        <span class="toggle-pill" data-mode="light">Light</span>
+      </button>
+    </header>
+
+    <main>
+      <!-- Bodycam Commands -->
+      <section class="section">
+        <div class="section-title">
+          <h2>Bodycam Commands</h2>
+          <span>Uniform & Undercover</span>
+        </div>
+
+        <div class="subheading">Attaching Bodycam (Uniform)</div>
+        <div class="command-row">
+          <div class="command-text" data-command>
+            /me takes out the bodycam, attaches it to chest, checks that it is ballistic and waterproof
+          </div>
+          <button class="copy-btn" type="button">Copy</button>
+        </div>
+
+        <div class="command-row">
+          <div class="command-text" data-command>
+            /me ensures the bodycam is recording and checks for the red light
+          </div>
+          <button class="copy-btn" type="button">Copy</button>
+        </div>
+
+        <div class="command-row">
+          <div class="command-text" data-command>
+            /do The bodycam is recording, ballistic and waterproof
+          </div>
+          <button class="copy-btn" type="button">Copy</button>
+        </div>
+
+        <div class="command-row">
+          <div class="command-text" data-command>
+            /me connects the PDA to the nearest SAHP cell tower and cloud servers
+          </div>
+          <button class="copy-btn" type="button">Copy</button>
+        </div>
+
+        <div class="subheading">Attaching Bodycam (Undercover)</div>
+        <div class="command-row">
+          <div class="command-text" data-command>
+            /me takes out the bodycam, clips it to the belt and hides it, checks that it is ballistic and waterproof
+          </div>
+          <button class="copy-btn" type="button">Copy</button>
+        </div>
+
+        <div class="command-row">
+          <div class="command-text" data-command>
+            /me makes sure the hidden bodycam is recording and checks for the red light
+          </div>
+          <button class="copy-btn" type="button">Copy</button>
+        </div>
+
+        <div class="subheading">Refreshing & Saving</div>
+        <div class="command-row">
+          <div class="command-text" data-command>
+            /me refreshes the bodycam and checks that it is still recording
+          </div>
+          <button class="copy-btn" type="button">Copy</button>
+        </div>
+
+        <div class="command-row">
+          <div class="command-text" data-command>
+            /me saves the bodycam footage, uploads it to SAHP servers, and continues recording
+          </div>
+          <button class="copy-btn" type="button">Copy</button>
+        </div>
+
+        <p class="tip">
+          ⚡ Tip: Start your bodycam or screen recording first, then type the command while you are clearly visible on camera.
+        </p>
+      </section>
+
+      <!-- Jumpsuit Commands -->
+      <section class="section">
+        <div class="section-title">
+          <h2>Jumpsuit Commands</h2>
+          <span>Prison / Custody</span>
+        </div>
+
+        <div class="subheading">Taking Jumpsuit</div>
+        <div class="command-row">
+          <div class="command-text" data-command>
+            /me takes an appropriate size jumpsuit from the bench
+          </div>
+          <button class="copy-btn" type="button">Copy</button>
+        </div>
+
+        <div class="subheading">Placing on Bed</div>
+        <div class="command-row">
+          <div class="command-text" data-command>
+            /me places the jumpsuit neatly on the bed
+          </div>
+          <button class="copy-btn" type="button">Copy</button>
+        </div>
+      </section>
+
+      <!-- Drone Commands -->
+      <section class="section">
+        <div class="section-title">
+          <h2>Drone Commands</h2>
+          <span>Work & Undercover</span>
+        </div>
+
+        <div class="subheading">Drone (Work Uniform)</div>
+        <div class="command-row">
+          <div class="command-text" data-command>
+            /me launches the SAHP drone and begins an aerial sweep of the area
+          </div>
+          <button class="copy-btn" type="button">Copy</button>
+        </div>
+
+        <div class="subheading">Drone (Undercover)</div>
+        <div class="command-row">
+          <div class="command-text" data-command>
+            /me takes the SAHP drone from the trunk and puts it into the backpack
+          </div>
+          <button class="copy-btn" type="button">Copy</button>
+        </div>
+
+        <div class="command-row">
+          <div class="command-text" data-command>
+            /me takes the drone out of the backpack and launches it discreetly
+          </div>
+          <button class="copy-btn" type="button">Copy</button>
+        </div>
+
+        <div class="command-row">
+          <div class="command-text" data-command>
+            /me picks up the drone from the ground and returns it to the backpack
+          </div>
+          <button class="copy-btn" type="button">Copy</button>
+        </div>
+      </section>
+
+      <!-- Vehicle Commands -->
+      <section class="section">
+        <div class="section-title">
+          <h2>Vehicle Commands</h2>
+          <span>Investigations</span>
+        </div>
+
+        <div class="subheading">Breaking Trunk</div>
+        <div class="command-row">
+          <div class="command-text" data-command>
+            /me forces the trunk open using a crowbar while preserving evidence
+          </div>
+          <button class="copy-btn" type="button">Copy</button>
+        </div>
+
+        <div class="command-row">
+          <div class="command-text" data-command>
+            /me notes the license plate and searches it through the SAHP database
+          </div>
+          <button class="copy-btn" type="button">Copy</button>
+        </div>
+
+        <div class="command-row">
+          <div class="command-text" data-command>
+            /me kneels down, reads the VIN under the car and runs it through the SAHP database
+          </div>
+          <button class="copy-btn" type="button">Copy</button>
+        </div>
+      </section>
+
+      <!-- Off Duty Commands -->
+      <section class="section">
+        <div class="section-title">
+          <h2>Off Duty</h2>
+          <span>End of Shift</span>
+        </div>
+
+        <div class="subheading">Going Off Duty</div>
+        <div class="command-row">
+          <div class="command-text" data-command>
+            /me removes the SD card from the bodycam and uploads all data to SAHP servers before going off duty
+          </div>
+          <button class="copy-btn" type="button">Copy</button>
+        </div>
+
+        <div class="command-row">
+          <div class="command-text" data-command>
+            /me places the ID badge inside the locker until the next shift
+          </div>
+          <button class="copy-btn" type="button">Copy</button>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      Made for SAHP roleplay • Customize with your own commands
+    </footer>
+  </div>
+
+  <script>
+    // Theme toggle
+    const body = document.body;
+    const toggle = document.getElementById("themeToggle");
+    const pills = toggle.querySelectorAll(".toggle-pill");
+
+    toggle.addEventListener("click", () => {
+      const isDark = body.classList.contains("dark");
+      body.classList.toggle("dark", !isDark);
+      body.classList.toggle("light", isDark);
+
+      pills.forEach((pill) => {
+        const mode = pill.getAttribute("data-mode");
+        pill.classList.toggle("active",
+          (mode === "dark" && !isDark) || (mode === "light" && isDark)
+        );
+      });
+    });
+
+    // Copy buttons
+    const buttons = document.querySelectorAll(".copy-btn");
+
+    buttons.forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const textEl = btn.parentElement.querySelector("[data-command]");
+        const text = textEl.innerText.trim();
+
+        try {
+          await navigator.clipboard.writeText(text);
+          const original = btn.innerText;
+          btn.innerText = "Copied!";
+          setTimeout(() => (btn.innerText = original), 900);
+        } catch (e) {
+          alert("Copy failed, please copy manually.");
+        }
+      });
+    });
+  </script>
+</body>
+</html>
